@@ -1,6 +1,6 @@
-<script setup>
-import {trackList} from './tracks';
-import {ref} from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue';
+import { trackList } from './tracks';
 
 // const classPlay = ref("fa fa-play");
 const audio = new Audio(trackList[0].src);
@@ -10,7 +10,7 @@ const isPlay = ref(!audio.paused);
 const currentTrack = ref(trackList[0].title)
 const currentArtist = ref(trackList[0].artists)
 const curentTrackIndex = ref(0);
-const cover = ref("http://ecx.images-amazon.com/images/I/51XSHShbPiL.jpg")
+const cover = ref(trackList[0].preview)
 
 function showNameTrack() {
     //change displaying name of track and artist
@@ -18,15 +18,21 @@ function showNameTrack() {
     currentArtist.value = trackList[curentTrackIndex.value].artists;
     cover.value = trackList[curentTrackIndex.value].preview;
 }
-function onPlay(event) {
+
+function setSlider() {
+    
+}
+function onPlay() {
     // меняем иконку
     isPlay.value = !isPlay.value;
     // if (event) {
     //     // console.log(event.target.classList.value);
     // } 
-
     // playing track
     isPlay.value ? audio.play() : audio.pause();
+    // activing slider
+    setSlider();
+
 }
 
 function onBack() {
@@ -45,13 +51,6 @@ function onNext() {
     //change displaying name of track and artist
     showNameTrack();
     isPlay.value && audio.play();
-}
-
-function changePosition(event) {
-    console.log(setPosition(event));
-}
-function setPosition(event) {
-    console.log(event.x, event.y);
 }
 
 </script>
@@ -77,7 +76,10 @@ function setPosition(event) {
 
             <img :src="cover" alt="Album cover" />
             
-            <div class="range" @input="setPosition"  @click="changePosition"></div>
+            <div class="range" >
+                <div class="slider-red-line"></div>
+                <div class="slider-circle"></div>
+            </div>
         </div>
         
         <div class="body__info">
