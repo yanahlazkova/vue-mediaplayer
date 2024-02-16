@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { trackList } from './tracks';
 
 // const classPlay = ref("fa fa-play");
@@ -11,6 +11,13 @@ const currentTrack = ref(trackList[0].title)
 const currentArtist = ref(trackList[0].artists)
 const curentTrackIndex = ref(0);
 const cover = ref(trackList[0].preview)
+// время исполнения трека переводим в минуты  
+const trackTime = trackList[curentTrackIndex.value].duration;
+// позиция ползунка
+const positionRange = ref(0)
+
+// const curentTime = ref(audio.currentTime);
+
 
 function showNameTrack() {
     //change displaying name of track and artist
@@ -19,8 +26,21 @@ function showNameTrack() {
     cover.value = trackList[curentTrackIndex.value].preview;
 }
 
-function setSlider() {
+const changePosition = () => {
+
+    setInterval(() => {
+    // каждые 5 сек получать текущее время трека и расчет процентного соотношения отображения ползунка
+        if (!audio.paused) {
+        positionRange.value = audio.currentTime * 100 / trackTime;
     
+        // console.log(audio.currentTime, trackTime, positionRange.value);
+    }else 
+    if (audio.ended) {
+        positionRange.value = 0;
+        console.log("end track");
+        onNext();
+    }
+        }, 100)
 }
 function onPlay() {
     // меняем иконку
@@ -30,12 +50,12 @@ function onPlay() {
     // } 
     // playing track
     isPlay.value ? audio.play() : audio.pause();
-    // activing slider
-    setSlider();
+    
 
 }
 
 function onBack() {
+    positionRange.value = 0;
     //change to curent track
     curentTrackIndex.value = curentTrackIndex.value == 0 ? trackList.length - 1 : curentTrackIndex.value - 1;
     audio.src = trackList[curentTrackIndex.value].src;
@@ -44,6 +64,7 @@ function onBack() {
     isPlay.value && audio.play();
 }
 function onNext() {
+    positionRange.value = 0;
     //change to curent track
     curentTrackIndex.value =
       curentTrackIndex.value == trackList.length - 1 ? 0 : curentTrackIndex.value + 1;
@@ -52,6 +73,15 @@ function onNext() {
     showNameTrack();
     isPlay.value && audio.play();
 }
+
+function setPosition(event) {
+    audio.currentTime = 190;
+    console.log(window.getComputedStyle(event.target));
+}
+onMounted(() => {
+    changePosition();
+
+});
 
 </script>
 
@@ -76,9 +106,9 @@ function onNext() {
 
             <img :src="cover" alt="Album cover" />
             
-            <div class="range" >
-                <div class="slider-red-line"></div>
-                <div class="slider-circle"></div>
+            <div class="range" @click="setPosition">
+                <div class="slider-red-line" :style="{width: positionRange + '%'}" ></div>
+                <div class="slider-circle" :style="{left: positionRange + '%'}"></div>
             </div>
         </div>
         
